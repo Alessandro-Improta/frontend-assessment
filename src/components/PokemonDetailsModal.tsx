@@ -1,7 +1,7 @@
 import React from 'react';
 import useGetPokemonDetails from 'src/hooks/useGetPokemonDetails';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Modal, Card, Descriptions, Divider, Progress, Tooltip } from 'antd';
+import { Modal, Card, Descriptions, Divider, Progress } from 'antd';
 import PokemonListItem from 'src/components/PokemonListItem';
 import { tss } from 'src/tss';
 import { CloseOutlined } from '@ant-design/icons';
@@ -23,7 +23,7 @@ const PokemonDetailsModal = () => {
     const feet = Math.floor(totalFeet);
     const remainingInches = (totalFeet - feet) * INCHES_PER_FOOT;
     const inches = Math.round(remainingInches);
-    return `${feet}'-${inches}"`;
+    return `${feet}'${inches}"`;
   }
 
   function captureRateToPercent(rate?: number | null) {
@@ -76,14 +76,14 @@ const PokemonDetailsModal = () => {
                 {data?.capture_rate && (
                   <Descriptions.Item label="Capture Rate">
                     <div className={classes.captureRow}>
-                      <Tooltip title="Game scale is 0–255; we also show it as a percentage.">
-                        <Progress
-                          percent={captureRateToPercent(data.capture_rate)}
-                          size="small"
-                          className={classes.progressMinWidth}
-                        />
-                      </Tooltip>
-                      <span className={classes.nowrap}>{data.capture_rate} / 255</span>
+                      <Progress
+                        percent={captureRateToPercent(data.capture_rate)}
+                        size="small"
+                        className={classes.progressMinWidth}
+                      />
+                      <span className={classes.nowrap}>
+                        {captureRateToPercent(data.capture_rate)}%
+                      </span>
                     </div>
                   </Descriptions.Item>
                 )}
