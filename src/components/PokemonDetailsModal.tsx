@@ -11,31 +11,18 @@ const PokemonDetailsModal = () => {
   const navigate = useNavigate();
   const { data, loading, error } = useGetPokemonDetails(pokemonId);
   const { classes } = useStyles();
-  console.log('data: ', data);
-  console.log('loading: ', loading);
-  console.log('error: ', error);
-
+  console.log(error);
   function roundToNearestTenth(number: number) {
     return Math.round(number * 10) / 10;
   }
 
   function metersToFeetAndInches(meters: number) {
-    // Conversion factor from meters to feet
     const FEET_PER_METER = 3.28084;
     const INCHES_PER_FOOT = 12;
-
-    // Calculate total feet
     const totalFeet = meters * FEET_PER_METER;
-
-    // Extract whole feet
     const feet = Math.floor(totalFeet);
-
-    // Calculate remaining inches
     const remainingInches = (totalFeet - feet) * INCHES_PER_FOOT;
-
-    // Round inches to the nearest whole number
     const inches = Math.round(remainingInches);
-
     return `${feet}'-${inches}"`;
   }
 
@@ -63,7 +50,7 @@ const PokemonDetailsModal = () => {
       footer={null}
       onCancel={() => navigate('/list')}
       destroyOnHidden
-      styles={{ body: { padding: '10px 0px 10px 0px' } }}
+      className={classes.modal}
       closeIcon={<CloseOutlined className={classes.closeIcon} />}
     >
       <PokemonListItem pokemon={data} />
@@ -83,15 +70,15 @@ const PokemonDetailsModal = () => {
             )}
             {data?.capture_rate && (
               <Descriptions.Item label="Capture Rate">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div className={classes.captureRow}>
                   <Tooltip title="Game scale is 0–255; we also show it as a percentage.">
                     <Progress
                       percent={captureRateToPercent(data.capture_rate)}
                       size="small"
-                      style={{ minWidth: 160 }}
+                      className={classes.progressMinWidth}
                     />
                   </Tooltip>
-                  <span style={{ whiteSpace: 'nowrap' }}>{data.capture_rate} / 255</span>
+                  <span className={classes.nowrap}>{data.capture_rate} / 255</span>
                 </div>
               </Descriptions.Item>
             )}
@@ -100,8 +87,8 @@ const PokemonDetailsModal = () => {
 
         {data?.stats && (
           <>
-            <Divider style={{ margin: '8px 0 12px' }}>Base Stats</Divider>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+            <Divider className={classes.statsDivider}>Base Stats</Divider>
+            <div className={classes.statsGrid}>
               {Object.entries(data.stats).map(([key, value]) => {
                 const label = STAT_LABELS[key] ?? key;
                 const percent = Math.round((value / MAX_STAT) * 100);
@@ -115,12 +102,12 @@ const PokemonDetailsModal = () => {
                 }
 
                 return (
-                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 90, textAlign: 'right' }}>{label}</div>
-                    <div style={{ flex: 1 }}>
+                  <div key={key} className={classes.statRow}>
+                    <div className={classes.statLabel}>{label}</div>
+                    <div className={classes.statProgress}>
                       <Progress percent={percent} showInfo={false} strokeColor={strokeColor} />
                     </div>
-                    <div style={{ width: 36, textAlign: 'left' }}>{value}</div>
+                    <div className={classes.statValue}>{value}</div>
                   </div>
                 );
               })}
@@ -132,29 +119,12 @@ const PokemonDetailsModal = () => {
   );
 };
 
-// This is the data structure of the pokemon object
-// {
-//   "id": 18,
-//   "name": "Pidgeot",
-//   "types": [
-//     "Normal",
-//     "Flying"
-//   ],
-//   "sprite": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/18.png",
-//   "height": 1.5,
-//   "weight": 39.5,
-//   "capture_rate": 45,
-//   "stats": {
-//     "hp": 83,
-//     "attack": 80,
-//     "defense": 75,
-//     "special-attack": 70,
-//     "special-defense": 70,
-//     "speed": 101
-//   }
-// }
-
 const useStyles = tss.create(({ theme }) => ({
+  modal: {
+    '& .ant-modal-body': {
+      padding: '10px 0px 10px 0px',
+    },
+  },
   closeIcon: {
     color: theme.color.text.primary,
     fontSize: '20px',
@@ -163,6 +133,41 @@ const useStyles = tss.create(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
+  },
+  captureRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  progressMinWidth: {
+    minWidth: 160,
+  },
+  nowrap: {
+    whiteSpace: 'nowrap',
+  },
+  statsDivider: {
+    margin: '8px 0 12px',
+  },
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: 8,
+  },
+  statRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+  },
+  statLabel: {
+    width: 90,
+    textAlign: 'right',
+  },
+  statProgress: {
+    flex: 1,
+  },
+  statValue: {
+    width: 36,
+    textAlign: 'left',
   },
 }));
 
