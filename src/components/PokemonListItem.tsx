@@ -60,6 +60,12 @@ const useStyles = tss.create(({ theme }) => ({
     alignItems: 'center',
     gap: '5px',
     cursor: 'pointer',
+    transition: 'transform 150ms ease, box-shadow 150ms ease',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
+      filter: 'brightness(1.08)',
+    },
   },
   id: {
     alignSelf: 'flex-end',
