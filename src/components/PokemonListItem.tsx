@@ -14,7 +14,7 @@ const PokemonListItem = ({
   const { classes, theme, cx, css } = useStyles();
   return (
     <div
-      className={classes.listItem}
+      className={cx(classes.listItem, shouldNavigate && classes.hoverEffect)}
       onClick={() => shouldNavigate && navigate(`details/${pokemon.id}`)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -60,6 +60,8 @@ const useStyles = tss.create(({ theme }) => ({
     alignItems: 'center',
     gap: '5px',
     cursor: 'pointer',
+  },
+  hoverEffect: {
     transition: 'transform 150ms ease, box-shadow 150ms ease',
     '&:hover': {
       transform: 'translateY(-2px)',
