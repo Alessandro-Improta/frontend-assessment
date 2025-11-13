@@ -64,8 +64,9 @@ export const useGetPokemon = (
   loading: boolean;
   error: useQuery.Result['error'];
   count: number | undefined;
+  refetch: () => void;
 } => {
-  const { data, loading, error } = useQuery<{
+  const { data, loading, error, refetch } = useQuery<{
     pokemon: any[];
     pokemon_aggregate: { aggregate: { count: number } };
   }>(GET_POKEMON, {
@@ -73,6 +74,7 @@ export const useGetPokemon = (
       search,
       offset,
     },
+    notifyOnNetworkStatusChange: true,
   });
 
   return {
@@ -88,6 +90,7 @@ export const useGetPokemon = (
     loading,
     error,
     count: data?.pokemon_aggregate?.aggregate?.count,
+    refetch: () => refetch(),
   };
 };
 

@@ -18,7 +18,6 @@ const client = new ApolloClient({
 
 const App = () => {
   const { theme } = useStyles();
-  console.log(theme);
   const antDTheme = {
     token: {
       colorText: theme.color.text.primary,

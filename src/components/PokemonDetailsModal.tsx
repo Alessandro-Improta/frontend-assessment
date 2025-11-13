@@ -5,13 +5,13 @@ import { Modal, Card, Descriptions, Divider, Progress, Tooltip } from 'antd';
 import PokemonListItem from 'src/components/PokemonListItem';
 import { tss } from 'src/tss';
 import { CloseOutlined } from '@ant-design/icons';
+import ErrorState from 'src/components/ErrorState';
 
 const PokemonDetailsModal = () => {
   const { pokemonId } = useParams<{ pokemonId: string }>();
   const navigate = useNavigate();
-  const { data, loading, error } = useGetPokemonDetails(pokemonId);
+  const { data, loading, error, refetch } = useGetPokemonDetails(pokemonId);
   const { classes } = useStyles();
-  console.log(error);
   function roundToNearestTenth(number: number) {
     return Math.round(number * 10) / 10;
   }
@@ -44,7 +44,6 @@ const PokemonDetailsModal = () => {
 
   return (
     <Modal
-      loading={loading}
       centered
       open={!!pokemonId}
       footer={null}
@@ -52,69 +51,77 @@ const PokemonDetailsModal = () => {
       destroyOnHidden
       className={classes.modal}
       closeIcon={<CloseOutlined className={classes.closeIcon} />}
+      loading={loading}
+      width="40vw"
     >
-      <PokemonListItem pokemon={data} />
-      <div className={classes.detailsContainer}>
-        <Card size="small">
-          <Descriptions size="small" column={1} colon>
-            {data?.height && (
-              <Descriptions.Item label="Height">
-                {data.height} m / {metersToFeetAndInches(data.height)}
-              </Descriptions.Item>
-            )}
-            {data?.weight && (
-              <Descriptions.Item label="Weight">
-                {roundToNearestTenth(data.weight)} kg / {roundToNearestTenth(data.weight * 2.20462)}{' '}
-                lbs
-              </Descriptions.Item>
-            )}
-            {data?.capture_rate && (
-              <Descriptions.Item label="Capture Rate">
-                <div className={classes.captureRow}>
-                  <Tooltip title="Game scale is 0–255; we also show it as a percentage.">
-                    <Progress
-                      percent={captureRateToPercent(data.capture_rate)}
-                      size="small"
-                      className={classes.progressMinWidth}
-                    />
-                  </Tooltip>
-                  <span className={classes.nowrap}>{data.capture_rate} / 255</span>
-                </div>
-              </Descriptions.Item>
-            )}
-          </Descriptions>
-        </Card>
-
-        {data?.stats && (
-          <>
-            <Divider className={classes.statsDivider}>Base Stats</Divider>
-            <div className={classes.statsGrid}>
-              {Object.entries(data.stats).map(([key, value]) => {
-                const label = STAT_LABELS[key] ?? key;
-                const percent = Math.round((value / MAX_STAT) * 100);
-                let strokeColor: string;
-                if (value >= 120) {
-                  strokeColor = '#52c41a';
-                } else if (value >= 80) {
-                  strokeColor = '#faad14';
-                } else {
-                  strokeColor = '#ff4d4f';
-                }
-
-                return (
-                  <div key={key} className={classes.statRow}>
-                    <div className={classes.statLabel}>{label}</div>
-                    <div className={classes.statProgress}>
-                      <Progress percent={percent} showInfo={false} strokeColor={strokeColor} />
+      {error ? (
+        <ErrorState error={error} onRetry={refetch} compact />
+      ) : (
+        <>
+          <PokemonListItem pokemon={data} />
+          <div className={classes.detailsContainer}>
+            <Card size="small">
+              <Descriptions size="small" column={1} colon>
+                {data?.height && (
+                  <Descriptions.Item label="Height">
+                    {data.height} m / {metersToFeetAndInches(data.height)}
+                  </Descriptions.Item>
+                )}
+                {data?.weight && (
+                  <Descriptions.Item label="Weight">
+                    {roundToNearestTenth(data.weight)} kg /{' '}
+                    {roundToNearestTenth(data.weight * 2.20462)} lbs
+                  </Descriptions.Item>
+                )}
+                {data?.capture_rate && (
+                  <Descriptions.Item label="Capture Rate">
+                    <div className={classes.captureRow}>
+                      <Tooltip title="Game scale is 0–255; we also show it as a percentage.">
+                        <Progress
+                          percent={captureRateToPercent(data.capture_rate)}
+                          size="small"
+                          className={classes.progressMinWidth}
+                        />
+                      </Tooltip>
+                      <span className={classes.nowrap}>{data.capture_rate} / 255</span>
                     </div>
-                    <div className={classes.statValue}>{value}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
-      </div>
+                  </Descriptions.Item>
+                )}
+              </Descriptions>
+            </Card>
+
+            {data?.stats && (
+              <>
+                <Divider className={classes.statsDivider}>Base Stats</Divider>
+                <div className={classes.statsGrid}>
+                  {Object.entries(data.stats).map(([key, value]) => {
+                    const label = STAT_LABELS[key] ?? key;
+                    const percent = Math.round((value / MAX_STAT) * 100);
+                    let strokeColor: string;
+                    if (value >= 120) {
+                      strokeColor = '#52c41a';
+                    } else if (value >= 80) {
+                      strokeColor = '#faad14';
+                    } else {
+                      strokeColor = '#ff4d4f';
+                    }
+
+                    return (
+                      <div key={key} className={classes.statRow}>
+                        <div className={classes.statLabel}>{label}</div>
+                        <div className={classes.statProgress}>
+                          <Progress percent={percent} showInfo={false} strokeColor={strokeColor} />
+                        </div>
+                        <div className={classes.statValue}>{value}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+        </>
+      )}
     </Modal>
   );
 };
@@ -124,6 +131,8 @@ const useStyles = tss.create(({ theme }) => ({
     '& .ant-modal-body': {
       padding: '10px 0px 10px 0px',
     },
+    height: '90vh',
+    overflowY: 'auto',
   },
   closeIcon: {
     color: theme.color.text.primary,

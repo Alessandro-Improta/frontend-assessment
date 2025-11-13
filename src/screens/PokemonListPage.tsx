@@ -7,27 +7,20 @@ import { Button, Input, Pagination } from 'antd';
 import { LoadingOutlined, SearchOutlined } from '@ant-design/icons';
 import { Outlet } from 'react-router-dom';
 import PokemonListItem from 'src/components/PokemonListItem';
+import ErrorState from 'src/components/ErrorState';
 
 export const PokemonListPage = () => {
   const { classes, theme } = useStyles();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 350);
   const [offset, setOffset] = useState(0);
-  const { data, loading, error, count } = useGetPokemon(debouncedSearch, offset);
+  const { data, loading, error, count, refetch } = useGetPokemon(debouncedSearch, offset);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     setCurrentPage(1);
     setOffset(0);
   }, [debouncedSearch]);
-
-  // TODO: 1. Improve the loading state. Add a spinner while loading.
-  // TODO: 2. Improve search input UI.
-  // TODO: 3. Show appropriate message when no results are found.
-  // TODO: 4. Make a nice error state.
-  // TODO: 5. Set up routes for details modal.
-  // TODO: 6. Add a modal for pokemon details.
-  // TODO: 7. Add pagination.
 
   return (
     <div className={classes.root}>
@@ -82,8 +75,8 @@ export const PokemonListPage = () => {
         </ul>
       ) : (
         <>
+          {error && <ErrorState error={error} onRetry={refetch} />}
           {loading && <div>Loading...</div>}
-          {error && <div>Error: {error.message || 'Something went wrong'}</div>}
           {count === 0 && <div>No results found</div>}
         </>
       )}

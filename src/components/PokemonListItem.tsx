@@ -5,7 +5,7 @@ import { tss } from 'src/tss';
 
 const PokemonListItem = ({
   pokemon,
-  shouldNavigate,
+  shouldNavigate = false,
 }: {
   pokemon: Pokemon;
   shouldNavigate?: boolean;

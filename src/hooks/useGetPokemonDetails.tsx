@@ -40,6 +40,7 @@ const useGetPokemonDetails = (
   data: PokemonDetail;
   loading: boolean;
   error: useQuery.Result['error'];
+  refetch: () => void;
 } => {
   const idNumber = parseInt(id || '', 10);
   function addDecimalBeforeLastDigit(number: number) {
@@ -52,14 +53,15 @@ const useGetPokemonDetails = (
     const resultString = `${remainingDigits}.${lastDigit}`;
     return parseFloat(resultString);
   }
-  const { data, loading, error } = useQuery<{ pokemon: any }>(GET_POKEMON_DETAILS, {
+  const { data, loading, error, refetch } = useQuery<{ pokemon: any }>(GET_POKEMON_DETAILS, {
     variables: {
       id: idNumber,
     },
+    skip: Number.isNaN(idNumber),
+    notifyOnNetworkStatusChange: true,
   });
 
   const pokemon = data?.pokemon?.[0];
-  console.log('pokemon: ', pokemon);
 
   return {
     data: {
@@ -96,6 +98,7 @@ const useGetPokemonDetails = (
     },
     loading,
     error,
+    refetch: () => refetch(),
   };
 };
 
