@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { tss } from '../tss';
-import useGetPokemon from 'src/hooks/useGetPokemon';
+import { useGetPokemon } from 'src/hooks/useGetPokemon';
 import useDebounce from 'src/hooks/useDebounce';
 import { Pokemon } from 'src/types/pokemon.types';
 import { Button, Input, Pagination } from 'antd';
@@ -28,6 +28,7 @@ export const PokemonListPage = () => {
       <div className={classes.header}>
         <div className={classes.search}>
           <Input.Search
+            id="searchInput"
             placeholder="Search Pokemon"
             onChange={(e) => setSearch(e.target.value)}
             loading={loading}

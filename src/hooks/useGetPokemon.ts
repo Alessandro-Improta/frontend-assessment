@@ -55,7 +55,6 @@ export const GET_POKEMON = gql`
   }
 `;
 
-// Search should be done client-side for the mid-level assessment. Uncomment for the senior assessment.
 export const useGetPokemon = (
   search?: string,
   offset?: number,
@@ -93,5 +92,3 @@ export const useGetPokemon = (
     refetch: () => refetch(),
   };
 };
-
-export default useGetPokemon;
