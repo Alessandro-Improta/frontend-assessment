@@ -48,6 +48,10 @@ const App = () => {
         contentBg: theme.color.secondary,
         footerBg: theme.color.secondary,
       },
+      Descriptions: {
+        labelColor: theme.color.secondary,
+        contentColor: theme.color.secondary,
+      },
     },
   };
   return (

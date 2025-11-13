@@ -1,7 +1,7 @@
 import React from 'react';
 import useGetPokemonDetails from 'src/hooks/useGetPokemonDetails';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Modal } from 'antd';
+import { Modal, Card, Descriptions, Divider, Progress, Tooltip } from 'antd';
 import PokemonListItem from 'src/components/PokemonListItem';
 import { tss } from 'src/tss';
 import { CloseOutlined } from '@ant-design/icons';
@@ -39,6 +39,22 @@ const PokemonDetailsModal = () => {
     return `${feet}'-${inches}"`;
   }
 
+  function captureRateToPercent(rate?: number | null) {
+    if (rate === null || rate === undefined) return undefined;
+    return Math.round((rate / 255) * 100);
+  }
+
+  const STAT_LABELS: Record<string, string> = {
+    hp: 'HP',
+    attack: 'Attack',
+    defense: 'Defense',
+    'special-attack': 'Sp. Atk',
+    'special-defense': 'Sp. Def',
+    speed: 'Speed',
+  };
+
+  const MAX_STAT = 255;
+
   return (
     <Modal
       loading={loading}
@@ -52,17 +68,64 @@ const PokemonDetailsModal = () => {
     >
       <PokemonListItem pokemon={data} />
       <div className={classes.detailsContainer}>
-        {data?.weight && (
-          <span>
-            Weight: {roundToNearestTenth(data.weight)}kgs/
-            {roundToNearestTenth(data.weight * 2.20462)}
-            lbs
-          </span>
-        )}
-        {data?.height && (
-          <span>
-            Height: {data.height}m/{metersToFeetAndInches(data.height)}
-          </span>
+        <Card size="small">
+          <Descriptions size="small" column={1} colon>
+            {data?.height && (
+              <Descriptions.Item label="Height">
+                {data.height} m / {metersToFeetAndInches(data.height)}
+              </Descriptions.Item>
+            )}
+            {data?.weight && (
+              <Descriptions.Item label="Weight">
+                {roundToNearestTenth(data.weight)} kg / {roundToNearestTenth(data.weight * 2.20462)}{' '}
+                lbs
+              </Descriptions.Item>
+            )}
+            {data?.capture_rate && (
+              <Descriptions.Item label="Capture Rate">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Tooltip title="Game scale is 0–255; we also show it as a percentage.">
+                    <Progress
+                      percent={captureRateToPercent(data.capture_rate)}
+                      size="small"
+                      style={{ minWidth: 160 }}
+                    />
+                  </Tooltip>
+                  <span style={{ whiteSpace: 'nowrap' }}>{data.capture_rate} / 255</span>
+                </div>
+              </Descriptions.Item>
+            )}
+          </Descriptions>
+        </Card>
+
+        {data?.stats && (
+          <>
+            <Divider style={{ margin: '8px 0 12px' }}>Base Stats</Divider>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+              {Object.entries(data.stats).map(([key, value]) => {
+                const label = STAT_LABELS[key] ?? key;
+                const percent = Math.round((value / MAX_STAT) * 100);
+                let strokeColor: string;
+                if (value >= 120) {
+                  strokeColor = '#52c41a';
+                } else if (value >= 80) {
+                  strokeColor = '#faad14';
+                } else {
+                  strokeColor = '#ff4d4f';
+                }
+
+                return (
+                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 90, textAlign: 'right' }}>{label}</div>
+                    <div style={{ flex: 1 }}>
+                      <Progress percent={percent} showInfo={false} strokeColor={strokeColor} />
+                    </div>
+                    <div style={{ width: 36, textAlign: 'left' }}>{value}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
     </Modal>
@@ -96,7 +159,11 @@ const useStyles = tss.create(({ theme }) => ({
     color: theme.color.text.primary,
     fontSize: '20px',
   },
-  detailsContainer: {},
+  detailsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+  },
 }));
 
 export default PokemonDetailsModal;
