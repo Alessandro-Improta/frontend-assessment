@@ -2,15 +2,21 @@ import { gql } from '@apollo/client';
 import { useQuery } from '@apollo/client/react';
 import { Pokemon, PokemonType } from 'src/types/pokemon.types';
 
-export const GET_POKEMONS = gql`
-  query GetPokemons($search: String) {
+export const GET_POKEMON = gql`
+  query GetPokemon($search: String, $offset: Int) {
     pokemon(
-      limit: 151
       order_by: { id: asc }
+      limit: 20
+      offset: $offset
       where: {
-        pokemonspecy: {
-          pokemonspeciesnames: { language: { name: { _eq: "en" } }, name: { _regex: $search } }
-        }
+        _and: [
+          {
+            id: { _lte: 151 }
+            pokemonspecy: {
+              pokemonspeciesnames: { language: { name: { _eq: "en" } }, name: { _iregex: $search } }
+            }
+          }
+        ]
       }
     ) {
       id
@@ -30,20 +36,42 @@ export const GET_POKEMONS = gql`
         }
       }
     }
+    pokemon_aggregate(
+      where: {
+        _and: [
+          {
+            id: { _lte: 151 }
+            pokemonspecy: {
+              pokemonspeciesnames: { language: { name: { _eq: "en" } }, name: { _iregex: $search } }
+            }
+          }
+        ]
+      }
+    ) {
+      aggregate {
+        count
+      }
+    }
   }
 `;
 
 // Search should be done client-side for the mid-level assessment. Uncomment for the senior assessment.
-export const useGetPokemons = (
+export const useGetPokemon = (
   search?: string,
+  offset?: number,
 ): {
   data: Pokemon[];
   loading: boolean;
   error: useQuery.Result['error'];
+  count: number | undefined;
 } => {
-  const { data, loading, error } = useQuery<{ pokemon: any[] }>(GET_POKEMONS, {
+  const { data, loading, error } = useQuery<{
+    pokemon: any[];
+    pokemon_aggregate: { aggregate: { count: number } };
+  }>(GET_POKEMON, {
     variables: {
       search,
+      offset,
     },
   });
 
@@ -59,5 +87,8 @@ export const useGetPokemons = (
       ) ?? [],
     loading,
     error,
+    count: data?.pokemon_aggregate?.aggregate?.count,
   };
 };
+
+export default useGetPokemon;

@@ -3,8 +3,8 @@ import { act, fireEvent, render } from 'src/test-utils';
 import { PokemonListPage } from './PokemonListPage';
 import { useNavigate } from 'react-router-dom';
 
-jest.mock('src/hooks/useGetPokemons', () => ({
-  useGetPokemons: jest.fn().mockReturnValue({ data: [{ id: '1', name: 'Bulbasaur' }] }),
+jest.mock('src/hooks/useGetPokemon', () => ({
+  useGetPokemon: jest.fn().mockReturnValue({ data: [{ id: '1', name: 'Bulbasaur' }] }),
 }));
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

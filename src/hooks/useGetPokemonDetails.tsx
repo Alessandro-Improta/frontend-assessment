@@ -34,20 +34,32 @@ export const GET_POKEMON_DETAILS = gql`
   }
 `;
 
-export const useGetPokemonDetails = (
-  id: number,
+const useGetPokemonDetails = (
+  id: string | undefined,
 ): {
   data: PokemonDetail;
   loading: boolean;
   error: useQuery.Result['error'];
 } => {
+  const idNumber = parseInt(id || '', 10);
+  function addDecimalBeforeLastDigit(number: number) {
+    const numString = String(number);
+    if (numString.length < 1) {
+      return number;
+    }
+    const lastDigit = numString.slice(-1);
+    const remainingDigits = numString.slice(0, -1);
+    const resultString = `${remainingDigits}.${lastDigit}`;
+    return parseFloat(resultString);
+  }
   const { data, loading, error } = useQuery<{ pokemon: any }>(GET_POKEMON_DETAILS, {
     variables: {
-      id,
+      id: idNumber,
     },
   });
 
   const pokemon = data?.pokemon?.[0];
+  console.log('pokemon: ', pokemon);
 
   return {
     data: {
@@ -55,8 +67,8 @@ export const useGetPokemonDetails = (
       name: pokemon?.pokemonspecy.pokemonspeciesnames?.[0]?.name,
       types: pokemon?.pokemontypes?.map((t: PokemonType) => t.type?.typenames?.[0]?.name),
       sprite: pokemon?.pokemonsprites?.[0]?.sprites,
-      height: pokemon?.height,
-      weight: pokemon?.weight,
+      height: addDecimalBeforeLastDigit(pokemon?.height),
+      weight: addDecimalBeforeLastDigit(pokemon?.weight),
       capture_rate: pokemon?.pokemonspecy.capture_rate,
       stats: pokemon?.pokemonstats?.reduce(
         (
@@ -86,3 +98,5 @@ export const useGetPokemonDetails = (
     error,
   };
 };
+
+export default useGetPokemonDetails;

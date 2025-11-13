@@ -1,11 +1,11 @@
 export interface Pokemon {
-  id: string;
+  id: number;
   name: string;
   types?: TypeName[];
   sprite?: string;
 }
 
-type TypeName =
+export type TypeName =
   | 'Normal'
   | 'Fire'
   | 'Water'
