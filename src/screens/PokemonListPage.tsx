@@ -84,6 +84,7 @@ export const PokemonListPage = () => {
         <>
           {loading && <div>Loading...</div>}
           {error && <div>Error: {error.message || 'Something went wrong'}</div>}
+          {count === 0 && <div>No results found</div>}
         </>
       )}
       <div>
